@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>repo-tour: a codebase walkthrough from a model running in your browser</title>
+    <meta name="description" content="Paste a public GitHub repo. A small language model downloads once, runs on your GPU with WebGPU, reads the repo file by file and explains it. No server, no API key." />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="repo-tour: a codebase walkthrough from a model in your browser" />
+    <meta property="og:description" content="A small model runs on your GPU, reads a GitHub repo file by file, and explains it. No server, no API key." />
+    <meta property="og:image" content="%SITE_URL%og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="repo-tour: a codebase walkthrough written by a model running in your browser" />
+    <meta property="og:url" content="%SITE_URL%" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="%SITE_URL%og.png" />
+    <link rel="canonical" href="%SITE_URL%" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  </head>
+  <body>
+    <header class="top">
+      <a class="brand" href="./">repo-tour</a>
+      <nav><a href="#how">How it works</a><a href="#tradeoffs">Trade-offs</a><a href="https://github.com/thegreatola/repo-tour">Source</a></nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <h1>A codebase walkthrough, written by a model running in your browser.</h1>
+        <p class="lede">Paste a public GitHub repo. A small language model downloads once, runs on your GPU, reads the repo file by file and explains it. There's no server and no API key. The only requests are to GitHub and, the first time, for the model.</p>
+
+        <form id="form" class="ask" novalidate>
+          <label class="field">
+            <span>GitHub repo</span>
+            <input id="repo" name="repo" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="owner/name or https://github.com/owner/name" required />
+          </label>
+          <label class="field model">
+            <span>Model</span>
+            <select id="model" name="model"></select>
+          </label>
+          <button id="run" type="submit">Run it in my browser</button>
+          <p id="form-error" class="form-error" role="alert" hidden></p>
+        </form>
+        <p id="gpu" class="gpu" aria-live="polite">Checking for WebGPU…</p>
+        <p class="replays" id="replays"></p>
+      </section>
+
+      <section id="session" class="session" hidden>
+        <p class="eyebrow" id="session-kind"></p>
+        <h2 id="session-title"></h2>
+        <p id="session-meta" class="meta"></p>
+        <div id="load" class="load" hidden>
+          <div class="load-bar"><i id="load-fill"></i></div>
+          <p id="load-text"></p>
+        </div>
+        <div class="work">
+          <div class="steps-col">
+            <h3>What it's doing</h3>
+            <ol id="steps" class="steps"></ol>
+          </div>
+          <article id="output" class="output" aria-live="polite"><p class="placeholder">The walkthrough appears here as it's written.</p></article>
+        </div>
+        <p id="checks" class="checks-line" hidden></p>
+        <dl id="metrics" class="metrics" hidden></dl>
+        <p class="actions">
+          <button id="skip" type="button" class="quiet" hidden>Skip to the end</button>
+          <button id="save" type="button" class="quiet" hidden>Save this run as a recording</button>
+        </p>
+      </section>
+
+      <section id="how" class="prose">
+        <h2>How it works</h2>
+        <p>Everything runs in this tab. The model is <a href="https://github.com/mlc-ai/web-llm">WebLLM</a> running on WebGPU in a Web Worker, and the repo comes straight from GitHub's public API. Each model has a 4,096-token context window, so the agent never sees the whole repo. It works like a person skimming a codebase:</p>
+        <ol class="flow">
+          <li><strong>Read the README.</strong> The file list is ranked: README and the package manifest first, then entry points like <code>src/index.ts</code>, with tests, lockfiles, vendored code and build output left out.</li>
+          <li><strong>Choose the next file.</strong> The model sees its notes so far and the 40 most promising unread files, and answers in JSON. Its answer is decoded against a schema whose only allowed paths are those 40, so it can't ask for a file that doesn't exist. It can only say it's done after reading two files.</li>
+          <li><strong>Take notes.</strong> Each file is cut to about 1,700 tokens and turned into a one-line role and up to four facts. Older notes shrink to one line so they all fit.</li>
+          <li><strong>Write the walkthrough</strong> from the notes alone, then check it: every file path it mentions is looked up in the repo. Paths it read are underlined, and paths that don't exist are struck through.</li>
+        </ol>
+      </section>
+
+      <section id="tradeoffs" class="prose">
+        <h2>Trade-offs</h2>
+        <p>Running in the browser means no server bill and nothing sent anywhere, and it means working within a small model. These are measured from the recorded runs on this page:</p>
+        <div class="table-wrap"><table id="tradeoff-table" class="numbers"></table></div>
+        <h3>What had to be cut</h3>
+        <ul>
+          <li><strong>Whole files.</strong> With 4,096 tokens for everything, a file gets about 1,700. The top of a file stays (imports, exports, first definitions) and the rest is dropped, with a note saying how much.</li>
+          <li><strong>Free-form tool calls.</strong> Small models don't call tools reliably, so the model never writes a tool call. It fills in a JSON form, and the browser does the fetching.</li>
+          <li><strong>Breadth.</strong> Five files a run, at most. It's a first look at a repo, not a review of it.</li>
+          <li><strong>Private repos.</strong> Only public repos can be read without a token, and asking for one would mean handling secrets on a static page.</li>
+        </ul>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <p>Built by <a href="https://x.com/thegreatola">@thegreatola</a>. <a href="https://github.com/thegreatola/repo-tour">Source on GitHub</a>, MIT licensed. <a href="privacy.html">Privacy</a>: no cookies, no analytics, nothing stored but the model in your browser's cache.</p>
+    </footer>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

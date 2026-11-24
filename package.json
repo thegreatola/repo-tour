@@ -1,0 +1,35 @@
+{
+  "name": "repo-tour",
+  "version": "0.1.0",
+  "description": "A codebase walkthrough written by a small language model running in your browser on WebGPU. No server, no API key.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "node --import tsx --test test/*.test.ts",
+    "typecheck": "tsc"
+  },
+  "keywords": [
+    "webllm",
+    "webgpu",
+    "ai-agents",
+    "in-browser",
+    "llm",
+    "structured-output"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "@mlc-ai/web-llm": "^0.2.89"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.8"
+  },
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  }
+}

@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Privacy: repo-tour</title>
+    <meta name="description" content="repo-tour runs entirely in your browser. No cookies, no analytics, no server." />
+    <meta property="og:title" content="Privacy: repo-tour" />
+    <meta property="og:image" content="%SITE_URL%og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <script type="module" src="/src/page.ts"></script>
+  </head>
+  <body>
+    <header class="top"><a class="brand" href="./">repo-tour</a><nav><a href="./">Try it</a><a href="https://github.com/thegreatola/repo-tour">Source</a></nav></header>
+    <main>
+      <section class="prose" style="padding-top: 10vh">
+        <h2>Privacy</h2>
+        <p>repo-tour is a static page. There is no server behind it, no account, no cookies and no analytics.</p>
+        <h3>What your browser fetches</h3>
+        <ul>
+          <li><strong>From GitHub:</strong> the repo you enter. Two requests go to <code>api.github.com</code> for its details and file list, and file contents come from <code>raw.githubusercontent.com</code>. GitHub sees these requests the way it sees any visit.</li>
+          <li><strong>The model, once:</strong> the weights download from Hugging Face and the WebGPU code from the WebLLM project's GitHub, the first time you run a model. After that they load from your browser's cache.</li>
+        </ul>
+        <h3>What stays on your machine</h3>
+        <p>The model runs on your GPU, so the files it reads and everything it writes stay in this tab. Nothing is sent anywhere else. The cached model stays in your browser's storage until you clear site data.</p>
+        <p>Recorded runs on the front page were made by running the same code and saving its events. They hold the public repo's file names, the model's notes and its walkthrough.</p>
+      </section>
+    </main>
+    <footer class="foot"><p><a href="./">Back to repo-tour</a></p></footer>
+  </body>
+</html>
