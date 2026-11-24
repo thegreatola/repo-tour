@@ -101,6 +101,8 @@ async function live(repo: string, model: string) {
     await runTour({ ref, llm, fetch: (u) => fetch(u), onEvent: (e) => (rec.push(e), ui(e)) });
     lastRecording = { version: 1, repo, model, device: navigator.userAgent, recordedAt: new Date().toISOString(), load: { seconds: Math.round(loadSeconds * 10) / 10, fromCache }, events: rec.events };
     $("save").hidden = false;
+    // In development, the recording is also reachable from the console, to save runs for the replay list.
+    if (import.meta.env.DEV) (window as any).lastRecording = lastRecording;
   } catch (err) {
     loadBox.hidden = true;
     addStep(`<span class="what warn">Stopped</span><span class="why">${esc((err as Error).message)}</span>`);
